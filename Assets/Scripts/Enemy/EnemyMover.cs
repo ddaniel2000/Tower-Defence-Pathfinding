@@ -5,48 +5,53 @@ using UnityEngine;
 [RequireComponent(typeof(Enemy))]
 public class EnemyMover : MonoBehaviour
 {
-    [SerializeField] private List<Tile> _path = new List<Tile>();
+    
     [SerializeField] [Range(0f, 5f)] private float _movementSpeed = 1;
+
+    private List<Node> _path = new List<Node>();
+
     private Enemy _enemy;
+    private GridManager _gridManager;
+    private Pathfinder _pathfinder;
 
     private void OnEnable()
     {
-        FindPath();
+        RecalculatePath();
         ReturnToStart();
         StartCoroutine(FollowPath());
     }
-    private void Start()
+    private void Awake()
     {
         _enemy = GetComponent<Enemy>();
+        _gridManager = FindObjectOfType<GridManager>();
+        _pathfinder = FindObjectOfType<Pathfinder>();
+        
     }
 
-    private void FindPath()
+    private void RecalculatePath()
     {
         _path.Clear();
-
-        GameObject parent = GameObject.FindGameObjectWithTag("Path"); 
-        foreach ( Transform child in parent.transform)
-        {
-            Tile waypoint = child.GetComponent<Tile>();
-            if(waypoint != null)
-            {
-                _path.Add(waypoint);
-            }
-            
-        }
+        _path = _pathfinder.GetNewPath();
     }
 
     private void ReturnToStart()
     {
-        transform.position = _path[0].transform.position;
+        transform.position = _gridManager.GetPositionFromCoordinates(_pathfinder.StartCoordinates);
+    }
+
+
+    private void FinishPath()
+    {
+        _enemy.StealGold();
+        gameObject.SetActive(false);
     }
 
     private IEnumerator FollowPath()
     {
-        foreach (Tile waypoint in _path)
+        for (int i = 0; i < _path.Count; i++)
         {
             Vector3 startPos = transform.position;
-            Vector3 endPos = waypoint.transform.position;
+            Vector3 endPos = _gridManager.GetPositionFromCoordinates(_path[i].coordinates);
             float travelPercent = 0;
 
             transform.LookAt(endPos);
@@ -60,7 +65,7 @@ public class EnemyMover : MonoBehaviour
 
         }
 
-        _enemy.StealGold();
-        gameObject.SetActive(false);
+        FinishPath();
     }
+
 }
