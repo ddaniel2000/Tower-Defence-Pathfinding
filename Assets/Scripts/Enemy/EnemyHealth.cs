@@ -12,14 +12,19 @@ public class EnemyHealth : MonoBehaviour
     private int _currentHits = 0;
     private Enemy _enemy;
 
+    [SerializeField] private ShowDamage _displayDamage;
+
     // Start is called before the first frame update
     void OnEnable()
     {
         _currentHits = _maxHitsPoints;
+        DisplayDamage();
+
     }
     private void Start()
     {
         _enemy = GetComponent<Enemy>();
+        DisplayDamage();
     }
 
     private void OnParticleCollision(GameObject other)
@@ -30,11 +35,19 @@ public class EnemyHealth : MonoBehaviour
     private void TakeHit()
     {
         _currentHits--;
-        if(_currentHits <= 0)
+        DisplayDamage();
+        if (_currentHits <= 0)
         {
+            
             gameObject.SetActive(false);
             _maxHitsPoints += _difficultyRamp;
             _enemy.RewardGold();
+            
         }
+    }
+
+    private void DisplayDamage()
+    {
+        _displayDamage.DisaplyDamage(_currentHits, _maxHitsPoints);
     }
 }
