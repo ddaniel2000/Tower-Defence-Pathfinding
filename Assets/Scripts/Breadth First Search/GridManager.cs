@@ -6,12 +6,57 @@ public class GridManager : MonoBehaviour
 {
 
     [SerializeField] private Vector2Int _gridSize;
-    Dictionary<Vector2Int, Node> _grid = new Dictionary<Vector2Int, Node>();
 
+    [Tooltip("World Grid Size - should match snap settings")]
+    [SerializeField] private int _unityGridSize = 10;
+    public int UnityGridSize {  get { return _unityGridSize; } }
+
+
+    Dictionary<Vector2Int, Node> _grid = new Dictionary<Vector2Int, Node>();
+    public Dictionary<Vector2Int, Node> Grid { get { return _grid; } }
     private void Awake()
     {
         CreateGrid();
     }
+
+    public Node GetNode(Vector2Int coordinates)
+    {
+        if(_grid.ContainsKey(coordinates))
+        {
+            return _grid[coordinates];
+        }
+        return null;
+
+    }
+
+    public void BlockNode(Vector2Int coordinates)
+    {
+        if(_grid.ContainsKey(coordinates))
+        {
+            _grid[coordinates].isWalkable = false;
+            Debug.Log("Blocked");
+        }
+    }
+
+
+    public Vector2Int GetCoordinatesFromPosition(Vector3 position)
+    {
+        Vector2Int coordinates = new Vector2Int();
+        coordinates.x = Mathf.RoundToInt(position.x / _unityGridSize);
+        coordinates.y = Mathf.RoundToInt(position.z / _unityGridSize);
+
+        return coordinates;
+    }
+
+    public Vector3 GetPositionFromCoordinates(Vector2Int coordinates)
+    {
+        Vector3 position = new Vector3();
+        position.x = coordinates.x * _unityGridSize;
+        position.z = coordinates.y * _unityGridSize;
+
+        return position;
+    }
+
 
     private void CreateGrid()
     {
@@ -21,7 +66,7 @@ public class GridManager : MonoBehaviour
             {
                 Vector2Int coordinates = new Vector2Int(x, y);
                 _grid.Add(coordinates, new Node(coordinates, true));
-                Debug.Log(_grid[coordinates].coordinates + "=" + _grid[coordinates].isWalkable);
+  
             }
         }
     }
