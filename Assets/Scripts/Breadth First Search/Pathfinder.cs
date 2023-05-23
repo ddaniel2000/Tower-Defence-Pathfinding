@@ -46,11 +46,17 @@ public class Pathfinder : MonoBehaviour
 
     public List<Node> GetNewPath()
     {
+        return GetNewPath(_startCoordinates);
+ 
+    }
+
+    public List<Node> GetNewPath(Vector2Int coordinates)
+    {
         _gridManager.ResetNode();
 
-        BreadhFirstSearch();
+        BreadhFirstSearch(coordinates);
         return BuildPath();
- 
+
     }
 
     private void ExploreNeigbors()
@@ -78,7 +84,7 @@ public class Pathfinder : MonoBehaviour
 
     }
 
-    private void BreadhFirstSearch()
+    private void BreadhFirstSearch(Vector2Int coordinates)
     {
         _startNode.isWalkable = true;
         _destinationNode.isWalkable = true;
@@ -88,8 +94,8 @@ public class Pathfinder : MonoBehaviour
 
         bool isRunning = true;
 
-        _frontier.Enqueue(_startNode);
-        _reached.Add(_startCoordinates, _startNode);
+        _frontier.Enqueue(_grid[coordinates]);
+        _reached.Add(coordinates, _grid[coordinates]);
 
         while(_frontier.Count > 0 && isRunning)
         {
@@ -146,7 +152,7 @@ public class Pathfinder : MonoBehaviour
 
     public void NotifyRecivers()
     {
-        BroadcastMessage("RecalculatePath",SendMessageOptions.DontRequireReceiver);
+        BroadcastMessage("RecalculatePath",false ,SendMessageOptions.DontRequireReceiver);
     }
 
 }
